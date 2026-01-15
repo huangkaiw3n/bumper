@@ -1,6 +1,6 @@
 {
   "name": "bumper",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "GitHub Action to analyze PostgreSQL migrations for lock issues",
   "main": "analyze.js",
   "packageManager": "pnpm@9.12.3",

@@ -19,8 +19,11 @@ name: Migration Review
 on:
   pull_request:
     paths:
-      - "migrations/**"
-      - "src/database/migrations/**"
+      # Match these to your migration-paths input (defaults shown below)
+      - "migrations/**/*.sql"
+      - "migrations/**/*.ts"
+      - "migrations/**/*.js"
+      - "src/database/migrations/**/*.ts"
 
 jobs:
   review:
@@ -37,6 +40,8 @@ jobs:
         with:
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Default migration-paths (uncomment to customize):
+          # migration-paths: 'migrations/**/*.sql,migrations/**/*.ts,migrations/**/*.js,src/database/migrations/**/*.ts'
 ```
 
 ## Inputs
@@ -65,7 +70,7 @@ jobs:
 
 ## Example output
 
-> ## 🔍 PostgreSQL Migration Lock Analysis
+> ## 🚧 Bumper
 >
 > ### 📄 `migrations/001_add_user_status.sql`
 >
