@@ -16,13 +16,15 @@ inputs:
   migration-paths:
     description: "Glob patterns for migration files (comma-separated)"
     required: false
-    default: "migrations/**/*.sql,migrations/**/*.ts,migrations/**/*.js,src/database/migrations/**/*.ts"
+    default: "migrations/**/*.sql,migrations/**/*.ts,migrations/**/*.js,src/database/migrations/**/*.ts,src/database/migrations/**/*.js,src/database/migrations/**/*.sql"
 
 runs:
   using: "composite"
   steps:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
+      with:
+        version: 9
 
     - name: Setup Node.js
       uses: actions/setup-node@v6
