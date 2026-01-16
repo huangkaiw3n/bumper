@@ -24,6 +24,8 @@ on:
       - "migrations/**/*.ts"
       - "migrations/**/*.js"
       - "src/database/migrations/**/*.ts"
+      - "src/database/migrations/**/*.js"
+      - "src/database/migrations/**/*.sql"
 
 jobs:
   review:
@@ -41,7 +43,7 @@ jobs:
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Default migration-paths (uncomment to customize):
-          # migration-paths: 'migrations/**/*.sql,migrations/**/*.ts,migrations/**/*.js,src/database/migrations/**/*.ts'
+          # migration-paths: 'migrations/**/*.sql,migrations/**/*.ts,migrations/**/*.js,src/database/migrations/**/*.ts,src/database/migrations/**/*.js,src/database/migrations/**/*.sql'
 ```
 
 ## Inputs
