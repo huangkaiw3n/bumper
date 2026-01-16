@@ -44,22 +44,44 @@ runs:
       shell: bash
       run: |
         echo "::group::Detecting changed migration files"
-        echo "Base branch: origin/${{ github.base_ref }}"
+        echo "Base ref: ${{ github.base_ref }}"
         echo "Migration patterns: ${{ inputs.migration-paths }}"
 
-        PATTERNS="${{ inputs.migration-paths }}"
-        IFS=',' read -ra PATTERN_ARRAY <<< "$PATTERNS"
+        # Get all changed files first
+        ALL_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        echo "All changed files:"
+        echo "$ALL_CHANGED"
 
+        # Convert glob patterns to grep regex patterns
+        PATTERNS="${{ inputs.migration-paths }}"
         CHANGED_FILES=""
-        for pattern in "${PATTERN_ARRAY[@]}"; do
-          pattern=$(echo "$pattern" | xargs)  # trim whitespace
-          echo "Checking pattern: $pattern"
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- "$pattern" 2>/dev/null || true)
-          if [ -n "$FILES" ]; then
-            echo "  Found: $FILES"
-            CHANGED_FILES="$CHANGED_FILES $FILES"
-          fi
-        done
+
+        # Process each changed file
+        while IFS= read -r file; do
+          [ -z "$file" ] && continue
+
+          # Check if file matches any of the patterns
+          IFS=',' read -ra PATTERN_ARRAY <<< "$PATTERNS"
+          for pattern in "${PATTERN_ARRAY[@]}"; do
+            pattern=$(echo "$pattern" | xargs)  # trim whitespace
+
+            # Convert glob to regex:
+            # 1. Escape dots: . -> \.
+            # 2. Convert **/ to optional path: **/ -> (.*\/)?
+            # 3. Convert * to non-slash wildcard: * -> [^/]*
+            regex=$(echo "$pattern" | \
+              sed 's/\./\\./g' | \
+              sed 's/\*\*\//(.*\/)?/g' | \
+              sed 's/\*/[^\/]*/g')
+            echo "    Pattern: $pattern -> Regex: ^${regex}$"
+
+            if echo "$file" | grep -qE "^${regex}$"; then
+              echo "  Matched: $file (pattern: $pattern)"
+              CHANGED_FILES="$CHANGED_FILES $file"
+              break
+            fi
+          done
+        done <<< "$ALL_CHANGED"
 
         CHANGED_FILES=$(echo "$CHANGED_FILES" | xargs)  # trim and normalize whitespace
 
